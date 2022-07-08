@@ -60,7 +60,6 @@ document.head.appendChild(styleSheet)
 
 ### 鼠标事件
 
-
 **鼠标点击**相关的有四个事件。
 
 - `click`：按下鼠标（通常是按下主按钮）时触发。
@@ -84,7 +83,26 @@ document.head.appendChild(styleSheet)
 
 ### animation 实现动画-css3
 
+[待理解]
+
 [refer_to_juejin-css动画之animation](https://juejin.cn/post/7031932651686756382)
+[refer_to_juejin-CSS动画属性关键帧keyframes全解析](https://juejin.cn/post/6844903757172457480)
+
+#### @keyframes
+
+**关键帧**，结合 `animation` 使用，**负责控制 `css` 动画中的关键画面**（ `animation` 只是设置动画的规则）。即`keyframes`设置某几个位置的静止图片，`css-animation`负责位置之间的 变化过程。
+
+`@keyframes`
+
+- 按动画时间的百分比划分为`0%{} 100%{}`，可以在任意一个时间点插入关键画面。每一组关键画面，会赋予一个特定的名称。
+- 按动画开始结束`from{}  to{}`，在开始和结束的关键帧中设置状态，并根据 css 的规则生成动画
+
+@keyframes 遵循以下规则：
+
+- 未指定起始和终止状态（即0%和100%）时，将使用元素的原始状态作为开始和结束的动画状态。
+- 关键帧中使用非动画属性，该属性会被忽略，其他属性仍然生效。
+- 关键帧不存在样式层叠，同名 `@keyframes` 以最后一个生效，同名百分比，以最后一个生效。
+- 关键帧内使用 `!important` 无效。
 
 `animation-name`
 动画名称和`@keyframes`的名称需一致，`@keyframes`定义的动画效果就能应用在使用了`animation-name`的 dom 元素身上。
@@ -107,6 +125,7 @@ document.head.appendChild(styleSheet)
 - **ease-in-out** 使用这个定时函数，动画开始的行为类似于 ease-in 函数，动画结束时的行为类似于 ease-out函数，即先慢后快再慢。
 
 **steps()** 函数包含两个参数，第一个为阶梯数，第二个参数为函数的方向 start｜end：
+
 ```
 start: 表示开始时进行一次阶跃
 end：表示结束时进行一次阶跃
@@ -124,17 +143,17 @@ end：表示结束时进行一次阶跃
 
 表示动画执行的周期次数：
 
-- infinite：无限次数
-- 数字：表示周期数，可以为小数，例如1.5，表示一个半周期；
+- **infinite**：无限次数
+- **数字**：表示周期数，可以为小数，例如1.5，表示一个半周期；
 
 `animation-direction`
 
 表示动画播放的方向，即是否反向播放；
 
-- normal：默认值，每个动画周期都从起点开始
-- reverse：每个动画周期都从终点开始
-- alternate：动画周期交替运行，反向运行时，动画按步后退，同时，带时间功能的函数也反向，比如，`ease-in` 在反向时成为 `ease-out`。
-- alternate-reverse：交替运行，由反向开始；
+- **normal**：默认值，每个动画周期都从起点开始
+- **reverse**：每个动画周期都从终点开始
+- **alternate**：动画周期交替运行，反向运行时，动画按步后退，同时，带时间功能的函数也反向，比如，`ease-in` 在反向时成为 `ease-out`。
+- **alternate-reverse**：交替运行，由反向开始；
 
 `animation-fill-mode`
 
@@ -167,6 +186,8 @@ end：表示结束时进行一次阶跃
 - animationend
 
 ## 一
+
+[refer_to_现代 JavaScript 教程(英翻中的教程)](https://zh.javascript.info/)
 
 ## JavaScript 基础知识
 
@@ -1183,7 +1204,7 @@ String.prototype.show = function() {
 >只有一种情况下允许修改原生原型。那就是 polyfilling。
 Polyfilling 是一个术语，表示某个方法在 JavaScript 规范中已存在，但是特定的 JavaScript 引擎尚不支持该方法，那么我们可以通过手动实现它，并用以填充内建原型。
 
-```
+```js
 
 if (!String.prototype.repeat) { // 如果这儿没有这个方法
   // 那就在 prototype 中添加它
