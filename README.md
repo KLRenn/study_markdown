@@ -1,6 +1,6 @@
-# study_markdown
+# study_md
 参考
 
 
 的
-markdown
+md
