@@ -75,7 +75,7 @@ x.currentTarget
     justify-content : center ;
     align-items : center ;
 }
-.webWelcome .active{
+.webWelcome.active{
     display : flex ;
 }
 
