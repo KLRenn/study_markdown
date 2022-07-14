@@ -185,6 +185,79 @@ end：表示结束时进行一次阶跃
 - animationstart
 - animationend
 
+### html 元素 添加/删除 属性值
+
+`元素名`.`classList`.`add/remove ('classname')`
+
+### setTimeout()
+
+setTimeout( () => { } ,//时间ms/s )
+
+### window 窗口滑动事件
+
+window.onscroll
+// 监听窗口滑动
+
+window.scrollY > 0
+//是否滑动的判断条件
+
+### document.querySelector('')  /..All('')
+
+根据 （范围限制的）html 标签名 查找 (所有)符合条件的标签
+
+.currentTarget -- 目前监听事件对象
+
+### .preventDefault()
+
+阻止事件对象默认动作
+
+### 目前事件对象属性
+
+#### .preventDefault()
+
+#### .currentTarget -- .Target
+
+#### .href
+
+#### .getBoundingClientRect()
+
+#### .offsetTop
+
+### window.scrollTo()
+
+###
+几何：
+
+- 文档可见部分的 width/height（内容区域的 width/height）：`document.documentElement.clientWidth/clientHeight`
+
+- 整个文档的 width/height，其中包括滚动出去的部分：
+```
+    let scrollHeight = Math.max(
+      document.body.scrollHeight, document.documentElement.scrollHeight,
+      document.body.offsetHeight, document.documentElement.offsetHeight,
+      document.body.clientHeight, document.documentElement.clientHeight
+    );
+```
+
+滚动：
+
+- 读取当前的滚动：`window.pageYOffset/pageXOffset`。
+
+- 更改当前的滚动：
+
+    - `window.scrollTo(pageX,pageY)` — 绝对坐标，
+    - `window.scrollBy(x,y)` — 相对当前位置进行滚动，
+    - `elem.scrollIntoView(top)` — 滚动以使 `elem` 可见（`elem` 与窗口的顶部/底部对齐）。
+
+
+### nextSibling
+
+下一节点，可能为非标签
+
+### document
+
+#### dom
+
 ## 一
 
 [refer_to_现代 JavaScript 教程(英翻中的教程)](https://zh.javascript.info/)
@@ -1986,13 +2059,404 @@ alert( 'Österreich'.localeCompare('Zealand') );
 
 #### 遍历 DOM
 
+[refer_to_juejin_从头学前端-40：什么是DOM？怎么用？](https://juejin.cn/post/7029336757996879902)
+[refer_to_遍历 DOM](https://zh.javascript.info/dom-navigation)
+
+**DOM**是（_**document Object Model**_）的缩写，译为**文档对象模型**。其中
+
+- D表示_Document_，就是DOM将HTML页面解析为一个文档。同时提供了document对象
+- O表示_Object_，就是DOM将HTML页面中每个元素解析为一个对象。
+- M表示_Model_，就是DOM中表示各个对象之间的关系。
+
+DOM是一个**独立于任何语言和平台的接口**，被设计用于解析HTML页面文档。
+浏览器加载并运行HTML页面后，会创建一个DOM树结构。
+![图 1](../images/a814a6b0478dfe964d07ebebc6db581ba207c1df7b49329d534a7e52152a9cc1.webp)
+DOM中的内容被封装成了JavaScript语言中的对象，之后使用JavaScript语言通过DOM结构来访问和操作HTML页面中的内容。
+
+##### 所有节点链接图
+
+![![图 2](../images/14e6809f4871fc981ed281e60aeba03e330e9ebfecca8bf73c7b1783a0d10859.png) 1](../images/7d39689cc0561b4e501b6b903e7845c2ffac4e669180eedc12b65e06983aedb4.png)
+
+首先我们需要获取到对应的 DOM 对象，以 document 对象开始。它是 DOM 的主“入口点”，然后通过这些节点之间的链接我们可以在 DOM 节点之间移动
+最顶层的 document 节点是 `document.documentElement`。
+
+```html
+
+<html> = document.documentElement
+html标签---对应html标签的DOM节点
+<head> = document.head
+<body> 元素 — 对应body标签的DOM节点
+```
+
+```html
+
+<html>
+// 如果一个脚本是在 <head> 中，那么脚本是访问不到 document.body 元素的，
+// 因为浏览器还没有读到它。
+// 在 DOM 中，null 值就意味着“不存在”或者“没有这个节点”。
+<head>
+  <script>
+    alert( "From HEAD: " + document.body );
+    // null，这里目前还没有 <body>
+  </script>
+</head>
+
+<body>
+
+  <script>
+    alert( "From BODY: " + document.body );
+    // HTMLBodyElement，现在存在了
+  </script>
+
+</body>
+</html>
+
+```
+
+- **子节点（或者叫作子）** --- 对应的是直系的子元素。换句话说，它们被完全嵌套在给定的元素中。例如，`` 和 `` 就是 `` 元素的子元素。
+- **子孙元素** --- 嵌套在给定元素中的所有元素，包括子元素，以及子元素的子元素等。
+**文本节点**显示为空白，但也是节点。
+
+```html
+// 这里 <body> 有子元素 <div> 和 <ul>（以及一些空白的文本节点）
+<html>
+<body>
+  <div>Begin</div>
+
+  <ul>
+    <li>Information</li>
+  </ul>
+
+  <div>End</div>
+
+  <script>
+    for (let i = 0; i < document.body.childNodes.length; i++) {
+      alert( document.body.childNodes[i] );
+      // Text, DIV, Text, UL, ..., SCRIPT
+    }
+  </script>
+  ...more stuff...
+</body>
+</html>
+
+```
+
+上面列出的导航（navigation）属性引用 所有 节点。例如，在 childNodes 中我们可以看到`文本节点`，`元素节点`，甚至包括`注释节点`（如果它们存在的话）。
+下面是只考虑元素节点的节点链接图
+
+##### 元素节点链接图
+
+![图 3](../images/d9412857265868b74bf812128b02f816cb585b25e7beccf66b490958f1cfeba7.png)
+`Node` 换成 `Element`
+
+- `children` — 仅那些作为元素节点的子代的节点。
+- `firstElementChild`，`lastElementChild` — 第一个和最后一个子元素。
+- `previousElementSibling`，`nextElementSibling` — 兄弟元素。
+- `parentElement` — 父元素。
+
+```html
+<html>
+<body>
+  <div>Begin</div>
+
+  <ul>
+    <li>Information</li>
+  </ul>
+
+  <div>End</div>
+
+  <script>
+    for (let elem of document.body.children) {
+      alert(elem); // DIV, UL, DIV, SCRIPT
+    }
+  </script>
+  ...
+</body>
+</html>
+```
+
+```js
+alert( document.documentElement.parentNode ); // document
+alert( document.documentElement.parentElement ); // null
+```
+
+`parentElement` 属性返回的是“元素类型”的父节点
+`parentNode` 返回的是“任何类型”的父节点
+根节点 `document.documentElement`（``）的父节点是 `document`。但 `document` 不是一个元素节点，所以 `parentNode` 返回了 `document`，但 `parentElement` 返回的是 `null`。
+遍历从任意节点 `elem` 到 `<html>` 而不是到 `document` 时，会派上用场
+
+```js
+while(elem = elem.parentElement) { // 向上，直到 <html>
+  alert( elem );
+}
+
+```
+
+##### 更多链接：表格 [待补充]
+
 #### 搜索：getElement*，querySelector*
 
-#### 节点属性：type，tag 和 content
+##### document.getElementById，id
 
-#### 特性和属性（Attributes and properties）
+**id 必须是唯一的**
+**document.getElementById** 或者**只使用 id**
 
-#### 修改文档（document）
+```html
+<div id="elem">
+  <div id="elem-content">Element</div>
+</div>
+<div id="elem"></div>
+<script>
+  // 获取该元素
+  let elem = document.getElementById('elem');
+  // 首选方案
+
+  // 将该元素背景改为红色
+  elem.style.background = 'red';
+---------------------------------------------------
+// 只使用 ID
+  // elem 是对带有 id="elem" 的 DOM 元素的引用
+  elem.style.background = 'red';
+  // id="elem-content" 内有连字符，所以它不能成为一个变量
+  // ...但是我们可以通过使用方括号 window['elem-content'] 来访问它
+
+  let elem = 5; // 现在 elem 是 5，而不是对 <div id="elem"> 的引用
+  alert(elem); // 5
+
+</script>
+```
+
+##### elem.querySelectorAll(css)
+
+最通用的匹配元素方法是 `elem.querySelectorAll(css)`，它返回 elem 中与给定 CSS 选择器匹配的所有元素。
+
+```html
+<ul>
+  <li>The</li>
+  <li>test</li>
+</ul>
+<ul>
+  <li>has</li>
+  <li>passed</li>
+</ul>
+<script>
+  let elements = document.querySelectorAll('ul > li:last-child');
+// 查找所有为最后一个子元素的 <li> 元素，
+// 可以使用任何 CSS 选择器，也可以使用伪类
+  for (let elem of elements) {
+    alert(elem.innerHTML); // "test", "passed"
+  }
+</script>
+
+```
+
+`elem.querySelector(css)` 调用会返回给定 CSS 选择器的第一个元素
+结果与 `elem.querySelectorAll(css)[0]` 相同，但是后者会查找 所有 元素，并从中选取一个，而 `elem.querySelector` 只会查找一个。因此速度上更快
+
+##### matches
+
+`elem.matches(css)`不会查找任何内容，它只会检查 `elem` 是否与给定的 CSS 选择器匹配，返回 `true` 或 `false`。
+适用于过滤元素
+
+```html
+<a href="http://example.com/file.zip">...</a>
+<a href="http://ya.ru">...</a>
+
+<script>
+  // 不一定是 document.body.children，还可以是任何集合
+  for (let elem of document.body.children) {
+    if (elem.matches('a[href$="zip"]')) {
+      alert("The archive reference: " + elem.href );
+    }
+  }
+</script>
+```
+
+##### closest
+
+`elem.closest(css)` 方法会查找与 CSS 选择器匹配的最近的祖先。`elem` 自己也会被搜索。
+
+```html
+<h1>Contents</h1>
+
+<div class="contents">
+  <ul class="book">
+    <li class="chapter">Chapter 1</li>
+    <li class="chapter">Chapter 2</li>
+  </ul>
+</div>
+
+<script>
+  let chapter = document.querySelector('.chapter'); // LI
+
+  alert(chapter.closest('.book')); // UL
+  alert(chapter.closest('.contents')); // DIV
+
+  alert(chapter.closest('h1')); // null（因为 h1 不是祖先）
+</script>
+getElementsBy*
+```
+
+##### 历史方法 getElementsBy TagName/ClassName/Name
+
+- `elem.getElementsByTagName(tag)` 查找具有给定标签的元素，并返回它们的集合。`tag` 参数也可以是对于“任何标签”的星号 `"*"`。
+- `document.getElementsByName(name)` 返回在文档范围内具有给定 `name` 特性的元素。很少使用。
+
+·
+
+- `elem.getElementsByClassName(className)` 返回具有给定CSS类的元素。返回的是元素的集合，所以里面有 `"s"`，需要通过索引来修改指定元素。
+
+```js
+// 行不通
+document.getElementsByTagName('input').value = 5;
+// 应该可以运行（如果有 input）
+document.getElementsByTagName('input')[0].value = 5;
+```
+
+##### 实时的集合-静态集合
+
+`"getElementsBy*"` 方法都会返回一个 **实时的（live）** 集合。这样的集合始终反映的是文档的当前状态，并且在文档发生更改时会“自动更新”。
+`querySelectorAll` 返回的是一个 **静态的** 集合，文档更改时，不会自动更新。
+
+##### 总结
+
+有6种主要的方法在DOM中搜索元素节点
+![图 1](../images/39a3e96d3628ac8528e557b29da019033030733ab1bd4b5be07efd82250ad99e.png)
+
+#### 节点属性：type，tag 和 content[待整理]
+
+#### 特性和属性 Attributes and properties[待整理]
+
+#### 修改文档 document
+
+##### 创建一个DOM节点(展示一条消息)
+
+例
+
+```html
+<style>
+.alert {
+  padding: 15px;
+  border: 1px solid #d6e9c6;
+  border-radius: 4px;
+  color: #3c763d;
+  background-color: #dff0d8;
+}
+</style>
+
+<div class="alert">
+  <strong>Hi there!</strong> You've read an important message.
+</div>
+```
+
+![图 2](../images/bcf47b685ce3912667ac0a483da0faec3266525c337c92665bf2a18ad65495e4.png)
+使用 JavaScript 创建一个相同的 `div`
+
+1. 创建一个节点
+用给定的标签创建一个新 **元素节点（element node）**：
+`let div = document.createElement('div');`
+用给定的文本创建一个 **文本节点**：
+`let textNode = document.createTextNode('Here I am');`
+2. 填充消息
+
+```js
+// 1. 创建 <div> 元素
+let div = document.createElement('div');
+
+// 2. 将元素的类设置为 "alert"
+div.className = "alert";
+
+// 3. 填充消息内容
+div.innerHTML = "<strong>Hi there!</strong> You've read an important message.";
+```
+
+3. 将新建div节点置入ducument中
+`document.body.append(div);`
+
+完整代码
+
+```html
+<style>
+.alert {
+  padding: 15px;
+  border: 1px solid #d6e9c6;
+  border-radius: 4px;
+  color: #3c763d;
+  background-color: #dff0d8;
+}
+</style>
+
+<script>
+  let div = document.createElement('div');
+  div.className = "alert";
+  div.innerHTML = "<strong>Hi there!</strong> You've read an important message.";
+
+  document.body.append(div);
+</script>
+```
+
+还有其它元素插入节点中的方法：
+
+- `node.append(...nodes or strings)` —— 在 `node` **末尾** 插入节点或字符串，
+- `node.prepend(...nodes or strings)` —— 在 `node` **开头** 插入节点或字符串，
+- `node.before(...nodes or strings)` —— 在 `node` **前面** 插入节点或字符串，
+- `node.after(...nodes or strings)` —— 在 `node` **后面** 插入节点或字符串，
+- `node.replaceWith(...nodes or strings)` —— 将 `node` 替换为给定的节点或字符串。
+
+这些方法的参数可以是一个要插入的任意的 DOM 节点列表，或者文本字符串（会被自动转换成文本节点）。
+示例：
+
+```html
+<ol id="ol">
+  <li>0</li>
+  <li>1</li>
+  <li>2</li>
+</ol>
+
+<script>
+  ol.before('before'); // 将字符串 "before" 插入到 <ol> 前面
+  ol.after('after'); // 将字符串 "after" 插入到 <ol> 后面
+
+  let liFirst = document.createElement('li');
+  liFirst.innerHTML = 'prepend';
+  ol.prepend(liFirst); // 将 liFirst 插入到 <ol> 的最开始
+
+  let liLast = document.createElement('li');
+  liLast.innerHTML = 'append';
+  ol.append(liLast); // 将 liLast 插入到 <ol> 的最末尾
+</script>
+```
+
+![图 3](../images/58ce94451b6e03f2c6130b6b49be3d3241a39e14f91a6d3531a96a1fbdb3ec6a.png)
+
+![图 4](../images/fa3114a1637b01e589b7049f6fc2bf90a94064bb263478233ec0850757bbfc53.png)
+最终结果
+
+```html
+before
+<ol id="ol">
+  <li>prepend</li>
+  <li>0</li>
+  <li>1</li>
+  <li>2</li>
+  <li>append</li>
+</ol>
+after
+```
+
+#####
+
+#####
+
+#####
+
+#####
+
+#####
+
+#####
+
+#####
 
 #### 样式和类
 
