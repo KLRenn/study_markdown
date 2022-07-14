@@ -1,6 +1,5 @@
 ### target，currentTarget
 
-```js
 function(x){
 x.target
 // 用户点击的对象
@@ -9,7 +8,6 @@ x.currentTarget
 
 // 实际被点击执行的对象 和 被绑定/监听的对象
 }
-```
 
 ### nodeType
 
@@ -288,7 +286,8 @@ js
 //   <li>                           <li>
 //
 ```
-![图 2](../../images/6514efc1e7072ee937366bd2126699d890e5dafb9ab4581f7f525636fa76b095.png)
+
+![li.png](/md_data/LI.png)
 
 ```css
 
