@@ -1,5 +1,6 @@
 ### target，currentTarget
 
+```
 function(x){
 x.target
 // 用户点击的对象
@@ -8,6 +9,7 @@ x.currentTarget
 
 // 实际被点击执行的对象 和 被绑定/监听的对象
 }
+```
 
 ### nodeType
 
