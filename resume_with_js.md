@@ -1,6 +1,6 @@
 ### target，currentTarget
 
-```
+```js
 function(x){
 x.target
 // 用户点击的对象
