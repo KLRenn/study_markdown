@@ -468,49 +468,66 @@ for (let i = 0 ; i < liTags.length ; i ++){
 }
 ```
 
-### 导航条`<a>`下方有高亮条表示当前页面位置，高亮条动态显示
+### 导航条`<a>`下方有高亮条表示当前页面位置，
 
-导航栏的`<li>` ，`<section>`的`<h2>` 都有提示视口位置的高亮条
-`<section>`里的元素出现动态阴影
-    视口移动至下一个`<section>`，上一个动态消失，下一个动态出现
-根据`<section>.offsetTop`+自身元素的高度 得到高亮条和阴影出现的范围
-根据 `window.scrollY 总和` + `粘滞导航栏高度` 判断 当前视口位置
+导航栏的`<a>` ，有提示视口位置的高亮条
 
-`<li>`从左往右动态显示，
-
-`<h2>`从下往上动态显示
-根据`<section>.offsetTop`+自身元素的高度 得到高亮条出现的范围
+siteAbout siteSkills siteWorks 三个盒子出现在视口前添加offset状态
 
 ```js
-js
-let specialTags = document.querySelectorAll('[data-x]') ;
-// 找到所有 含有属性 [data-x] 的div 并复制给 specialTags
-
-for(let i = 0 ; i<specialTags;i++){
-    console.log(specialTags[i].offsetTop);
+let specialTags = document.querySelectorAll('[data-x]')
+for(let i =0;i<specialTags.length; i++){
+  specialTags[i].classList.add('offset')
 }
 ```
+
+```css
+[data-x].offset{
+transform:translateY(100px); // 往下移动100px
+}
+```
+
+判断视口距离哪个盒子最近，并在nav动态显示对应的高亮条
+
+```js
+function findClosest(){
+  let specialTags = document.querySelectorAll('[data-x]')
+  // <div data-x class="" >，选择器('[data-x]')
+  let minIndex = 0 // 距离视口最近的盒子序号
+  for(let i =1;i<specialTags.length; i++){
+    if(Math.abs(specialTags[i].offsetTop - window.scrollY)
+    < Math.abs(specialTags[minIndex].offsetTop - window.scrollY)){
+      // 如果 minIndex对应盒子
+      // 不是距离视口最近，则 +1
+      // 是距离视口最近，则采用
+      minIndex = i
+    }
+  }
+  // minIndex 就是里窗口顶部最近的盒子（序号）
+  specialTags[minIndex].classList.remove('offset')
+  // <section id="siteXxx">.id
+  let id = specialTags[minIndex].id
+  // 选择器('')--a的属性是 href 为 " #  id  "(href=""),
+  // 找到对应的<a>标签
+  let a = document.querySelector('a[href="#'+ id + '"]')
+  let li = a.parentNode
+  //Node.children 返回这个Node子elements(一个动态更新的html集合)
+  // 获得 nav 的子 li 集合（）
+  let brothersAndMe = li.parentNode.children
+  for(let i=0; i<brothersAndMe.length; i++){
+    brothersAndMe[i].classList.remove('highlight')
+  }
+  li.classList.add('highlight')
+}
+```
+
 
 ### 页面下方出现的内容以动画形式加载
 animate when scroll
 
-```js
-js
-let specialTags = document.querySelectorAll(['date-x']) ;
-//querySelectorAll(['date-x']
-for(let i = 0 ; i<specialTags.length;i++){
-    specialTags[i],classList.add('offset')
-}
 
-```
 ```css
-css
-[data-x].active {
-    outline: 10px solid red ;
-}
-[data-x].offset{  // offset 即初始状态-初始关键帧
-    transform: translateY(100px) ;
-}
+
 [data-x] {
     transform: translateY(0) ;
     transition: all 0.5s ;
